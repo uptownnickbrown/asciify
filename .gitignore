@@ -1,1 +1,4 @@
+.DS_Store
 node_modules/
+test-images/out-img/
+test-images/out-txt/
