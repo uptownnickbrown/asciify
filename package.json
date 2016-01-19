@@ -9,6 +9,7 @@
   "author": "Nick Brown",
   "license": "MIT",
   "dependencies": {
-    "twit" : "2.1.1"
+    "nconf": "^0.8.2",
+    "twit": "2.1.1"
   }
 }
