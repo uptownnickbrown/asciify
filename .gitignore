@@ -4,3 +4,7 @@ test-images/out-img/
 test-images/out-txt/
 config.json
 aws.json
+public/ascii-out/
+temp-gray/
+media-in/
+ascii-img/
