@@ -5,7 +5,7 @@ var express = require('express'),
     fs = require('fs'),
     config = require('./config.json'),
     request = require('request'),
-    exec = require('child_process').exec;
+    exec = require('child_process').exec,
 
 var twitter_creds = config.twitter_creds;
 
@@ -58,60 +58,70 @@ var T = new Twit({
 
 var stream = T.stream('user');
 
+// Set up a heck of a callback chain through command line tools after a tweet is received
 stream.on('tweet', function (tweet) {
-  console.log('tweet received');
-  if (tweet.in_reply_to_screen_name == 'asciify') {
+  if (tweet.entities.user_mentions) {
+    if (tweet.entities.user_mentions.filter(function(mention){return mention.screen_name == 'asciify'}).length > 0) {
+      // Need to store these for our reply later
+      var fromUser = tweet.user.screen_name,
+          statusID = tweet.id_str;
 
-    console.log('it\'s for me!');
-    var fromUser = tweet.user.screen_name;
+      // Process it and reply with an image
+      if (tweet.entities.media) {
 
-    // Process it and reply with an image
-    if (tweet.entities.media) {
-      console.log('it\'s got an image!');
-      var imageURL = tweet.entities.media[0].media_url + ':large',
-          imageString = tweet.entities.media[0].id_str + '.jpg',
-          rawLocation = 'media-in/' + imageString,
-          grayLocation = 'temp-gray/' + imageString
-          asciiLocation = 'public/ascii-out/' + tweet.entities.media[0].id_str + '.txt',
-          asciiImageLocation = 'ascii-img/' + imageString;
+        var imageURL = tweet.entities.media[0].media_url + ':large',
+            imageString = tweet.entities.media[0].id_str + '.jpg',
+            rawLocation = 'media-in/' + imageString,
+            grayLocation = 'temp-gray/' + imageString
+            asciiLocation = 'public/ascii-out/' + tweet.entities.media[0].id_str + '.txt',
+            asciiImageLocation = 'ascii-img/' + imageString;
 
-      request(imageURL).pipe(fs.createWriteStream(rawLocation)).on('close', function() {
-        console.log("File finished downloading")
-        var convertCall = "convert " + rawLocation + " -sharpen 0x3.5 -colorspace gray -colors 4 -normalize " + grayLocation,
-            jp2aCall = "jp2a -i --width=140 --output=" + asciiLocation + " " + grayLocation,
-            rasterCall = "convert -size 800x2000 -background white -fill '#333333' -density 72 -pointsize 9 -font Courier caption:@" + asciiLocation + " -trim " + asciiImageLocation;
-        console.log(convertCall);
-        console.log(jp2aCall);
-        console.log(rasterCall);
-        var convertIt = exec(convertCall,function(err,stdout,stderr) {
-          console.log('convertIt done');
-          var jp2aIt = exec(jp2aCall,function(err,stdout,stderr) {
-            console.log('jp2a done');
-            var rasterIt = exec(rasterCall,function(err,stdout,stderr) {
-              console.log('raster done, time to reply');
-              var params = {
-                status: '@' + fromUser + ' right back at ya',
-                in_reply_to_status_id: tweet.id_str
-              };
-              T.post('statuses/update', params, function(err, data, response) {
-                console.log('posted a reply after processing');
+        request(imageURL).pipe(fs.createWriteStream(rawLocation)).on('close', function() {
+          // After download finishes, we can run a chain of tools on it
+          var convertCall = "convert " + rawLocation + " -sharpen 0x3.5 -colorspace gray -colors 4 -normalize " + grayLocation,
+              jp2aCall = "jp2a -i --width=140 --output=" + asciiLocation + " " + grayLocation,
+              rasterCall = "convert -size 800x1500 -background white -fill '#111111' -density 72 -pointsize 10 -kerning -0.5 -font Courier caption:@" + asciiLocation + " -resize '80x100%' -trim " + asciiImageLocation;
+          //console.log(convertCall);
+          //console.log(jp2aCall);
+          //console.log(rasterCall);
+
+          // exec() is async, need to call subsequent tools that need previous outputs in the callback
+          var convertIt = exec(convertCall,function(err,stdout,stderr) {
+            //console.log('convertIt done');
+            var jp2aIt = exec(jp2aCall,function(err,stdout,stderr) {
+              //console.log('jp2a done');
+              var rasterIt = exec(rasterCall,function(err,stdout,stderr) {
+                //console.log('raster done, time to reply');
+
+
+                // Need to b64 encode to upload to Twitter API
+                var rawb64Content = fs.readFileSync(rawLocation, { encoding: 'base64' }),
+                    asciiArtb64Content = fs.readFileSync(asciiImageLocation, { encoding: 'base64' });
+
+                // Post the original image to Twitter
+                T.post('media/upload', { media_data: rawb64Content }, function (err, data, response) {
+                  var rawMediaIdStr = data.media_id_string;
+
+                  // Post a raster image of the ascii art to Twitter
+                  T.post('media/upload', { media_data: asciiArtb64Content }, function (err, data, response) {
+                    var asciiMediaIdStr = data.media_id_string;
+
+                    // Post the raw text to S3 and get the URL to include in the tweet
+                    var tweetParams = { status: '.@' + fromUser + ' here you go! https://s3.amazonaws.com/asciify-image-bucket/' + tweet.entities.media[0].id_str + '.txt', in_reply_to_status_id: statusID, media_ids: [rawMediaIdStr,asciiMediaIdStr] }
+
+                    // Finally reply!
+                    T.post('statuses/update', tweetParams, function (err, data, response) {
+                      //console.log('posted a reply after processing');
+                    });
+                  });
+                });
               });
             });
           });
         });
-      });
-    } else {
-      // Just send a dumb reply
-      var params = {
-        status: '@' + fromUser + ' right back at ya',
-        in_reply_to_status_id: tweet.id_str
-      };
-      T.post('statuses/update', params, function(err, data, response) {
-        console.log('posted a reply');
-      });
+      }
     }
   }
 });
-
 
 module.exports = app;
