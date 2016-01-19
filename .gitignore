@@ -3,3 +3,4 @@ node_modules/
 test-images/out-img/
 test-images/out-txt/
 config.json
+aws.json

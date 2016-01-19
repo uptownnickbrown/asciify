@@ -10,9 +10,9 @@
   "author": "Nick Brown",
   "license": "MIT",
   "dependencies": {
-    "nconf": "^0.8.2",
-    "twit": "2.1.1",
+    "aws-sdk": "^2.2.30",
     "express": "~4.13.1",
-    "morgan": "~1.6.1"
+    "morgan": "~1.6.1",
+    "twit": "2.1.1"
   }
 }
