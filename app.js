@@ -63,7 +63,7 @@ var stream = T.stream('user');
 
 // Set up a heck of a callback chain through command line tools after a tweet is received
 stream.on('tweet', function (tweet) {
-  if (tweet.entities.user_mentions) {
+  if (tweet.entities.user_mentions && !(tweet.retweeted_status)) {
     if (tweet.entities.user_mentions.filter(function(mention){return mention.screen_name == 'asciify'}).length > 0) {
       // Need to store these for our reply later
       var fromUser = tweet.user.screen_name,
