@@ -6,7 +6,10 @@ var express = require('express'),
     config = require('./config.json'),
     request = require('request'),
     exec = require('child_process').exec,
+    AWS = require('aws-sdk'),
+    awsCreds = require('./aws.json');
 
+AWS.config.update(awsCreds);
 var twitter_creds = config.twitter_creds;
 
 var app = express();
@@ -90,9 +93,19 @@ stream.on('tweet', function (tweet) {
             //console.log('convertIt done');
             var jp2aIt = exec(jp2aCall,function(err,stdout,stderr) {
               //console.log('jp2a done');
+              var s3 = new AWS.S3({params: {Bucket: 'asciify-image-bucket', Key: tweet.entities.media[0].id_str + '.txt'}}),
+                  uploadText = fs.readFileSync(asciiLocation);
+                  // TODO don't use readFileSync
               var rasterIt = exec(rasterCall,function(err,stdout,stderr) {
                 //console.log('raster done, time to reply');
 
+                // Upload the file
+                s3.upload({
+                  Body:uploadText,
+                  ContentType: 'text/plain'
+                },function() {
+                  //console.log("done uploading to S3");
+                });
 
                 // Need to b64 encode to upload to Twitter API
                 var rawb64Content = fs.readFileSync(rawLocation, { encoding: 'base64' }),
