@@ -1,6 +1,10 @@
 var fs = require('fs');
 var exec = require('child_process').exec;
 
+fs.mkdir('out-txt');
+fs.mkdir('out-img');
+fs.mkdir('out-ascii-img');
+
 var testImages = fs.readdirSync('.');
 
 testImages.filter(function(filename)
