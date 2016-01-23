@@ -1,9 +1,15 @@
 var fs = require('fs');
 var exec = require('child_process').exec;
 
-fs.mkdir('out-txt');
-fs.mkdir('out-img');
-fs.mkdir('out-ascii-img');
+fs.mkdir('out-txt',function(e){
+  //folder already exists
+});
+fs.mkdir('out-img',function(e){
+  //folder already exists
+});
+fs.mkdir('out-ascii-img',function(e){
+  //folder already exists
+});
 
 var testImages = fs.readdirSync('.');
 

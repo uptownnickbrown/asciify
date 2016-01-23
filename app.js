@@ -31,7 +31,7 @@ app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 var asciify = require('./routes/asciify');
-app.use('/asciify', asciify);
+app.use('/', asciify);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
