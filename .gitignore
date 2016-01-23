@@ -1,10 +1,11 @@
 .DS_Store
 node_modules/
-test-images/out-img/
-test-images/out-txt/
+test-images/out-img/*
+test-images/out-txt/*
 config.json
 aws.json
-public/ascii-out/
+public/ascii-out/*
 temp-gray/
 media-in/
 ascii-img/
+asciify-deploy.txt

@@ -61,8 +61,10 @@ var T = new Twit({
 
 var stream = T.stream('user');
 
+console.log('registering stream callback');
 // Set up a heck of a callback chain through command line tools after a tweet is received
 stream.on('tweet', function (tweet) {
+  console.log(tweet.text);
   if (tweet.entities.user_mentions && !(tweet.retweeted_status)) {
     if (tweet.entities.user_mentions.filter(function(mention){return mention.screen_name == 'asciify'}).length > 0) {
       // Need to store these for our reply later
@@ -136,5 +138,16 @@ stream.on('tweet', function (tweet) {
     }
   }
 });
+
+// Check my last tweet every 1 minute as a keep-alive
+// Nuke the last 200 tweets you've sent (useful for cleaning up after bugs...)
+var keepMeAlive = setInterval(function(){
+  T.get('statuses/user_timeline', {screen_name:'asciify',count:1},function(err, data, response) {
+    console.log('performing keep-alive');
+    data.map(function(tweet){
+      console.log(tweet.text);
+    });
+  });
+},60000);
 
 module.exports = app;
