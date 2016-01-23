@@ -1,21 +1,23 @@
 var Twit = require('twit'),
     fs = require('fs'),
-    nconf = require('nconf');
+    config = require('./config.json');
 
-nconf.file('config.json');
-var twitter_creds = nconf.get('twitter_creds');
+var twitter_creds = config.twitter_creds;
 
 var T = new Twit({consumer_key: twitter_creds.consumer_key,
     consumer_secret: twitter_creds.consumer_secret,
     access_token: twitter_creds.access_token,
     access_token_secret: twitter_creds.access_token_secret});
-);
 
 // Test stream API to monitor for changes
 var stream = T.stream('user');
 
 var tweetSave,
     replySave;
+
+stream.on('message', function (message) {
+  console.log(message);
+});
 
 stream.on('tweet', function (tweet) {
   console.log('tweet received');
