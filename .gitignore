@@ -4,8 +4,8 @@ test-images/out-img/*
 test-images/out-txt/*
 config.json
 aws.json
+public/media-in/*
+public/temp-gray/*
 public/ascii-out/*
-temp-gray/
-media-in/
-ascii-img/
+public/ascii-img/*
 asciify-deploy.txt

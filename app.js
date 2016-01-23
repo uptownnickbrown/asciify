@@ -12,6 +12,19 @@ var express = require('express'),
 AWS.config.update(awsCreds);
 var twitter_creds = config.twitter_creds;
 
+fs.mkdir('public/media-in',function(e){
+  //folder already exists
+});
+fs.mkdir('public/temp-gray',function(e){
+  //folder already exists
+});
+fs.mkdir('public/ascii-out',function(e){
+  //folder already exists
+});
+fs.mkdir('public/ascii-img',function(e){
+  //folder already exists
+});
+
 var app = express();
 
 app.use(logger('dev'));
@@ -76,10 +89,10 @@ stream.on('tweet', function (tweet) {
 
         var imageURL = tweet.entities.media[0].media_url + ':large',
             imageString = tweet.entities.media[0].id_str + '.jpg',
-            rawLocation = 'media-in/' + imageString,
-            grayLocation = 'temp-gray/' + imageString
+            rawLocation = 'public/media-in/' + imageString,
+            grayLocation = 'public/temp-gray/' + imageString
             asciiLocation = 'public/ascii-out/' + tweet.entities.media[0].id_str + '.txt',
-            asciiImageLocation = 'ascii-img/' + imageString;
+            asciiImageLocation = 'public/ascii-img/' + imageString;
 
         request(imageURL).pipe(fs.createWriteStream(rawLocation)).on('close', function() {
           // After download finishes, we can run a chain of tools on it
@@ -126,7 +139,9 @@ stream.on('tweet', function (tweet) {
 
                     // Finally reply!
                     T.post('statuses/update', tweetParams, function (err, data, response) {
-                      //console.log('posted a reply after processing');
+                      console.log('posted a reply after processing');
+                      console.log(tweetParams);
+                      console.log(data);
                     });
                   });
                 });
