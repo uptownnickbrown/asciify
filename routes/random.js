@@ -26,7 +26,7 @@ router.get('/', function(req, res, next) {
   var randomEveryDay = function() {
     var goodImageTweets = [];
     T.get('statuses/user_timeline', {screen_name:'Flickr',count:100},function(err, data, response) {
-      console.log('checking out Flickr\'s latest');
+      //console.log('checking out Flickr\'s latest');
       data.map(function(tweet){
         if (!(tweet.retweeted_status) && tweet.entities.media) {
           //console.log('kept a tweet');
@@ -38,7 +38,7 @@ router.get('/', function(req, res, next) {
         }
       });
       T.get('statuses/user_timeline', {screen_name:'nasahqphoto',count:100},function(err, data, response) {
-        console.log('checking out nasahqphoto\'s latest');
+        //console.log('checking out nasahqphoto\'s latest');
         data.map(function(tweet){
           if (!(tweet.retweeted_status) && tweet.entities.media) {
             //console.log('kept a tweet');
@@ -50,7 +50,7 @@ router.get('/', function(req, res, next) {
           }
         });
         T.get('statuses/user_timeline', {screen_name:'MagnumPhotos',count:100},function(err, data, response) {
-          console.log('checking out MagnumPhotos\'s latest');
+          //console.log('checking out MagnumPhotos\'s latest');
           data.map(function(tweet){
             if (!(tweet.retweeted_status) && tweet.entities.media) {
               //console.log('kept a tweet');
@@ -62,7 +62,7 @@ router.get('/', function(req, res, next) {
             }
           });
           T.get('statuses/user_timeline', {screen_name:'NatGeo',count:100},function(err, data, response) {
-            console.log('checking out NatGeo\'s latest');
+            //console.log('checking out NatGeo\'s latest');
             data.map(function(tweet){
               if (!(tweet.retweeted_status) && tweet.entities.media) {
                 //console.log('kept a tweet');
@@ -75,7 +75,7 @@ router.get('/', function(req, res, next) {
             });
             //console.log(goodImageTweets.length);
             var tweet = goodImageTweets[Math.floor(Math.random() * goodImageTweets.length)];
-            console.log(tweet);
+            //console.log(tweet);
             var fromUser = tweet.user.screen_name,
                 statusID = tweet.id_str;
 
@@ -91,27 +91,27 @@ router.get('/', function(req, res, next) {
               var convertCall = "convert " + rawLocation + " -sharpen 0x3.5 -colorspace gray -colors 4 -normalize " + grayLocation,
                   jp2aCall = "jp2a -i --width=140 --output=" + asciiLocation + " " + grayLocation,
                   rasterCall = "convert -size 800x1500 -background white -fill '#111111' -density 72 -pointsize 10 -kerning -0.5 -font Courier caption:@" + asciiLocation + " -resize '80x100%' -trim " + asciiImageLocation;
-              console.log(convertCall);
-              console.log(jp2aCall);
-              console.log(rasterCall);
+              //console.log(convertCall);
+              //console.log(jp2aCall);
+              //console.log(rasterCall);
 
               // exec() is async, need to call subsequent tools that need previous outputs in the callback
               var convertIt = exec(convertCall,function(err,stdout,stderr) {
-                console.log('convertIt done');
+                //console.log('convertIt done');
                 var jp2aIt = exec(jp2aCall,function(err,stdout,stderr) {
-                  console.log('jp2a done');
+                  //console.log('jp2a done');
                   var s3 = new AWS.S3({params: {Bucket: 'asciify-image-bucket', Key: tweet.entities.media[0].id_str + '.txt'}}),
                       uploadText = fs.readFileSync(asciiLocation);
                       // TODO don't use readFileSync
                   var rasterIt = exec(rasterCall,function(err,stdout,stderr) {
-                    console.log('raster done, time to reply');
+                    //console.log('raster done, time to reply');
 
                     // Upload the file
                     s3.upload({
                       Body:uploadText,
                       ContentType: 'text/plain'
                     },function() {
-                      console.log("done uploading to S3");
+                      //console.log("done uploading to S3");
                     });
 
                     // Need to b64 encode to upload to Twitter API
@@ -131,9 +131,9 @@ router.get('/', function(req, res, next) {
 
                         // Finally reply!
                         T.post('statuses/update', tweetParams, function (err, data, response) {
-                          console.log('posted a random image after processing');
-                          console.log(tweetParams);
-                          console.log(data);
+                          //console.log('posted a random image after processing');
+                          //console.log(tweetParams);
+                          //console.log(data);
                           res.redirect("https://twitter.com/asciify/status/" + data.id_str);
                         });
                       });
