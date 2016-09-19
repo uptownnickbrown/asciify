@@ -25,7 +25,7 @@ var T = new Twit({
 router.get('/', function(req, res, next) {
   var randomEveryDay = function() {
     var goodImageTweets = [];
-    T.get('statuses/user_timeline', {screen_name:'Flickr',count:10},function(err, data, response) {
+    T.get('statuses/user_timeline', {screen_name:'Flickr',count:100},function(err, data, response) {
       console.log('checking out Flickr\'s latest');
       data.map(function(tweet){
         if (!(tweet.retweeted_status) && tweet.entities.media) {
@@ -37,7 +37,7 @@ router.get('/', function(req, res, next) {
           //console.log(tweet.text);
         }
       });
-      T.get('statuses/user_timeline', {screen_name:'nasahqphoto',count:10},function(err, data, response) {
+      T.get('statuses/user_timeline', {screen_name:'nasahqphoto',count:100},function(err, data, response) {
         console.log('checking out nasahqphoto\'s latest');
         data.map(function(tweet){
           if (!(tweet.retweeted_status) && tweet.entities.media) {
@@ -49,7 +49,7 @@ router.get('/', function(req, res, next) {
             //console.log(tweet.text);
           }
         });
-        T.get('statuses/user_timeline', {screen_name:'MagnumPhotos',count:10},function(err, data, response) {
+        T.get('statuses/user_timeline', {screen_name:'MagnumPhotos',count:100},function(err, data, response) {
           console.log('checking out MagnumPhotos\'s latest');
           data.map(function(tweet){
             if (!(tweet.retweeted_status) && tweet.entities.media) {
@@ -61,7 +61,7 @@ router.get('/', function(req, res, next) {
               //console.log(tweet.text);
             }
           });
-          T.get('statuses/user_timeline', {screen_name:'NatGeo',count:10},function(err, data, response) {
+          T.get('statuses/user_timeline', {screen_name:'NatGeo',count:100},function(err, data, response) {
             console.log('checking out NatGeo\'s latest');
             data.map(function(tweet){
               if (!(tweet.retweeted_status) && tweet.entities.media) {
@@ -76,6 +76,8 @@ router.get('/', function(req, res, next) {
             //console.log(goodImageTweets.length);
             var tweet = goodImageTweets[Math.floor(Math.random() * goodImageTweets.length)];
             console.log(tweet);
+            var fromUser = tweet.user.screen_name,
+                statusID = tweet.id_str;
 
             var imageURL = tweet.entities.media[0].media_url + ':large',
                 imageString = tweet.entities.media[0].id_str + '.jpg',
@@ -125,7 +127,7 @@ router.get('/', function(req, res, next) {
                         var asciiMediaIdStr = data.media_id_string;
 
                         // Post the raw text to S3 and get the URL to include in the tweet
-                        var tweetParams = { status: 'Dusting this thing off...', media_ids: [rawMediaIdStr,asciiMediaIdStr] }
+                        var tweetParams = { status: 'Nice photo  @' + fromUser +'! https://s3.amazonaws.com/asciify-image-bucket/' + tweet.entities.media[0].id_str + '.txt', in_reply_to_status_id: statusID, media_ids: [rawMediaIdStr,asciiMediaIdStr] }
 
                         // Finally reply!
                         T.post('statuses/update', tweetParams, function (err, data, response) {
