@@ -31,7 +31,9 @@ app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 var asciify = require('./routes/asciify');
+var random = require('./routes/random');
 app.use('/', asciify);
+app.use('/random', random);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -155,14 +157,15 @@ stream.on('tweet', function (tweet) {
 });
 
 // Check my last tweet every 1 minute as a keep-alive
-// Nuke the last 200 tweets you've sent (useful for cleaning up after bugs...)
-var keepMeAlive = setInterval(function(){
+var keepAlive = function(){
   T.get('statuses/user_timeline', {screen_name:'asciify',count:1},function(err, data, response) {
     console.log('performing keep-alive');
     data.map(function(tweet){
       console.log(tweet.text);
     });
   });
-},60000);
+};
+
+var keepMeAlive = setInterval(keepAlive,60000);
 
 module.exports = app;
