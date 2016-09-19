@@ -134,7 +134,7 @@ router.get('/', function(req, res, next) {
                           console.log('posted a random image after processing');
                           console.log(tweetParams);
                           console.log(data);
-                          res.redirect(301,"https://twitter.com/asciify/status/" + data.id_str);
+                          res.redirect("https://twitter.com/asciify/status/" + data.id_str);
                         });
                       });
                     });
