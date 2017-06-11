@@ -4,6 +4,7 @@ var express = require('express'),
     Twit = require('twit'),
     fs = require('fs'),
     config = require('./config.json'),
+    runOnce = require('./routes/runOnce.js');
     request = require('request'),
     exec = require('child_process').exec,
     AWS = require('aws-sdk'),
@@ -167,5 +168,6 @@ var keepAlive = function(){
 };
 
 var keepMeAlive = setInterval(keepAlive,60000);
+var runOneADay = setInterval(runOnce,66666666);
 
 module.exports = app;
