@@ -4,7 +4,7 @@ var router = express.Router();
 
 /* Home page, pull in all past examples */
 router.get('/', function(req, res, next) {
-  var testImages = fs.readdirSync('public/media-in').reverse();
+  var testImages = fs.readdirSync('public/ascii-img').reverse();
   testImages = testImages.filter(function(filename) {return filename.indexOf(".jpg") > -1;});
   var output = '';
   var head = '<!DOCTYPE html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Nick Brown | Asciify"><meta name="author" content="Nick Brown"><meta name="robots" content="index, follow"><link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png"><title>Asciify</title><link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto+Slab:300,500,600,700|Oswald:400,700" rel="stylesheet" type="text/css"><link href="stylesheets/bootstrap.min.css" rel="stylesheet"><link href="stylesheets/style.css" rel="stylesheet"></head>';
