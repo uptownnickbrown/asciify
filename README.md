@@ -2,6 +2,8 @@
 
 Express app that runs a Twitter bot that responds to @mentions that include images with ASCII art versions of those images.
 
+## Update August 2018 - Broken by the Twitter API changes :( No plans to fix this app.
+
 #### Credentials
 
 Add your Twitter app credentials to config.json with this structure:
